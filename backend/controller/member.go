@@ -12,17 +12,9 @@ import (
 
 func CreateMember(c *gin.Context) {
 
-	var member_id entity.Member
+	var member entity.Member
 
-	if err := c.ShouldBindJSON(&member_id); err != nil {
-
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-
-		return
-
-	}
-
-	if err := entity.DB().Create(&member_id).Error; err != nil {
+	if err := c.ShouldBindJSON(&member); err != nil {
 
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 
@@ -30,7 +22,23 @@ func CreateMember(c *gin.Context) {
 
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": member_id})
+	newMember := entity.Member{
+		Email:          member.Email,
+		Username:       member.Username,
+		Password:       member.Password,
+		GenderID:       member.GenderID,
+		Hashedpassword: member.Hashedpassword,
+	}
+
+	if err := entity.DB().Create(&newMember).Error; err != nil {
+
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+
+		return
+
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": newMember})
 
 }
 
@@ -38,11 +46,11 @@ func CreateMember(c *gin.Context) {
 
 func GetMember(c *gin.Context) {
 
-	var member_id entity.Member
+	var member entity.Member
 
 	id := c.Param("id")
 
-	if err := entity.DB().Raw("SELECT * FROM members WHERE id = ?", id).Scan(&member_id).Error; err != nil {
+	if err := entity.DB().Raw("SELECT * FROM members WHERE id = ?", id).Scan(&member).Error; err != nil {
 
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 
@@ -50,7 +58,7 @@ func GetMember(c *gin.Context) {
 
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": member_id})
+	c.JSON(http.StatusOK, gin.H{"data": member})
 
 }
 
@@ -58,9 +66,9 @@ func GetMember(c *gin.Context) {
 
 func ListMembers(c *gin.Context) {
 
-	var member_id []entity.Member
+	var member []entity.Member
 
-	if err := entity.DB().Raw("SELECT * FROM members").Scan(&member_id).Error; err != nil {
+	if err := entity.DB().Raw("SELECT * FROM members").Scan(&member).Error; err != nil {
 
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 
@@ -68,7 +76,7 @@ func ListMembers(c *gin.Context) {
 
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": member_id})
+	c.JSON(http.StatusOK, gin.H{"data": member})
 
 }
 
@@ -94,9 +102,9 @@ func DeleteMember(c *gin.Context) {
 
 func UpdateMember(c *gin.Context) {
 
-	var member_id entity.Member
+	var member entity.Member
 
-	if err := c.ShouldBindJSON(&member_id); err != nil {
+	if err := c.ShouldBindJSON(&member); err != nil {
 
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 
@@ -104,7 +112,7 @@ func UpdateMember(c *gin.Context) {
 
 	}
 
-	if tx := entity.DB().Where("id = ?", member_id.ID).First(&member_id); tx.RowsAffected == 0 {
+	if tx := entity.DB().Where("id = ?", member.ID).First(&member); tx.RowsAffected == 0 {
 
 		c.JSON(http.StatusBadRequest, gin.H{"error": "user not found"})
 
@@ -112,7 +120,7 @@ func UpdateMember(c *gin.Context) {
 
 	}
 
-	if err := entity.DB().Save(&member_id).Error; err != nil {
+	if err := entity.DB().Save(&member).Error; err != nil {
 
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 
@@ -120,6 +128,19 @@ func UpdateMember(c *gin.Context) {
 
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": member_id})
+	c.JSON(http.StatusOK, gin.H{"data": member})
 
+}
+
+func GetMemberByHash(c *gin.Context) {
+	var member entity.Member
+	hashedPassword := c.Param("hashed_password")
+
+	// Replace this with a proper database query to retrieve the customer by hashed password
+	if err := entity.DB().Where("hashed_password = ?", hashedPassword).First(&member).Error; err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": member})
 }

@@ -6,10 +6,11 @@ import (
 
 type Member struct {
 	gorm.Model
-	member_id int
-	Email     string
-	Username  string
-	Password  string
+
+	Email          string
+	Username       string
+	Password       string
+	Hashedpassword string
 
 	// GenderID ทำหน้าที่เป็น FK
 	GenderID *uint

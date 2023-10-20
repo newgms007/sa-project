@@ -121,11 +121,30 @@ async function UpdateMember(data: MembersInterface) {
 
 }
 
+async function GetMemberByHash(hashed_password: string | undefined) {
+    const requestOptions = {
+      method: "GET"
+    };
+  
+    let res = await fetch(`${apiUrl}/members/hash/${hashed_password}`, requestOptions)
+      .then((response) => response.json())
+      .then((res) => {
+        if (res.data) {
+          return res.data;
+        } else {
+          return false;
+        }
+      });
+  
+    return res;
+  }
+
 export {
     GetMembers,
     CreateMember,
     GetGenders,
     DeleteMemberByID,
     GetMemberById,
-    UpdateMember
+    UpdateMember,
+    GetMemberByHash
 };

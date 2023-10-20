@@ -6,7 +6,7 @@ import {
   Error,
   Landing,
   Login,
-  Register,
+
   Orders,
   Products,
   Payment,
@@ -18,6 +18,7 @@ import {
   Admin,
 
 } from "./pages";
+import Register from "./pages/Register/Register"
 // import {Admin,AddProduct,Approve,DataComic,Member} from "./pages/Admin";
 const App = () => {
   return (

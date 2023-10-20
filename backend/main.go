@@ -22,12 +22,14 @@ func main() {
 
 	r.GET("/members/:id", controller.GetMember)
 
+	r.GET("/members/hash/:hashed_password", controller.GetMemberByHash)
+
 	r.POST("/members", controller.CreateMember)
 
 	r.PATCH("/members", controller.UpdateMember)
 
 	r.DELETE("/members/:id", controller.DeleteMember)
-	
+
 	r.GET("/genders", controller.ListGenders)
 
 	// Run the server
